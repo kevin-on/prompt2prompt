@@ -1,6 +1,6 @@
 # P2P (Prompt-to-Prompt) Implementation
 
-This repository contains a refactored Python implementation of the [Prompt-to-Prompt Image Editing](https://github.com/google/prompt-to-prompt) project, originally developed by Google Research.
+This repository contains a refactored Python implementation of the [Prompt-to-Prompt](https://github.com/google/prompt-to-prompt) project, originally developed by Google Research.
 
 ## Motivation
 
@@ -10,7 +10,7 @@ The original Prompt-to-Prompt repository provides an innovative approach to imag
 
 2. **Compatibility Issues**: Recent versions of the `diffusers` library introduced breaking changes that affected the original implementation. This repository includes fixes for these compatibility issues, particularly addressing problems with newer diffusers versions as discussed in [this issue](https://github.com/google/prompt-to-prompt/issues/90).
 
-### Running the Project
+## Running the Project
 
 The main script for running prompt-to-prompt image editing is located in the `scripts` directory. To run the project, execute the following command from the root directory of the project:
 
