@@ -198,7 +198,12 @@ def get_replacement_mapper_(
             i += 1
             j += 1
         else:
-            mapper[j, j] = 1
+            # Bug fix: Changed indices from [j, j] to [i, j]
+            #
+            # Test AttentionReplace with following prompts to see the bug:
+            # ["A lion eating a burger",
+            #  "A super-lovely-cute-dog eating a burger"]
+            mapper[i, j] = 1
             i += 1
             j += 1
 
