@@ -52,7 +52,7 @@ def get_cross_attention(
         image = image.unsqueeze(-1).expand(*image.shape, 3)
         image = image.numpy().astype(np.uint8)
         image = np.array(Image.fromarray(image).resize((256, 256)))
-        image = ptp_utils.text_under_image(image, decoder(int(tokens[i])))
+        image = ptp_utils.add_text_to_image(image, decoder(int(tokens[i])))
         images.append(image)
     return np.stack(images, axis=0)
 

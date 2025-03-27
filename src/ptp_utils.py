@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import os
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Literal, Optional, Tuple, Union
 
 import cv2
 import numpy as np
@@ -27,18 +27,63 @@ from attn_controller import AttentionControl
 from attn_processor import Prompt2PromptAttnProcessor
 
 
-def text_under_image(
-    image: np.ndarray, text: str, text_color: Tuple[int, int, int] = (0, 0, 0)
+def add_text_to_image(
+    image: np.ndarray,
+    text: str,
+    position: Literal["top", "bottom"] = "bottom",
+    offset_ratio: float = 0.15,
+    text_color: Tuple[int, int, int] = (0, 0, 0),
+    font_scale: float = 1.0,
+    font_thickness: int = 2,
+    bg_color: Tuple[int, int, int] = (255, 255, 255),
+    font_face: int = cv2.FONT_HERSHEY_SIMPLEX,
 ):
+    """Add text above or below an image with customizable parameters.
+
+    Args:
+        image: Input image as numpy array
+        text: Text to add under the image
+        text_color: RGB color tuple for text
+        font_scale: Scale factor for font size
+        font_thickness: Thickness of font strokes
+        offset_ratio: Ratio of image height to use as offset for text
+        bg_color: RGB color tuple for background
+        font_face: OpenCV font face to use
+        position: Where to place text - either "top" or "bottom"
+    """
+    if image.ndim != 3:
+        raise ValueError(f"Invalid image shape: {image.shape}")
+
+    if position not in ["top", "bottom"]:
+        raise ValueError("Position must be either 'top' or 'bottom'")
+
     h, w, c = image.shape
-    offset = int(h * 0.2)
-    img = np.ones((h + offset, w, c), dtype=np.uint8) * 255
-    font = cv2.FONT_HERSHEY_SIMPLEX
-    img[:h] = image
-    textsize = cv2.getTextSize(text, font, 1, 2)[0]
-    text_x, text_y = (w - textsize[0]) // 2, h + offset - textsize[1] // 2
-    cv2.putText(img, text, (text_x, text_y), font, 1, text_color, 2)
-    return img
+    offset = int(h * offset_ratio)
+
+    new_img = np.ones((h + offset, w, c), dtype=np.uint8) * np.array(
+        bg_color, dtype=np.uint8
+    )
+
+    textsize = cv2.getTextSize(text, font_face, font_scale, font_thickness)[0]
+    text_x = (w - textsize[0]) // 2
+
+    if position == "bottom":
+        new_img[:h] = image
+        text_y = h + (offset + textsize[1]) // 2
+    else:  # position == "top"
+        new_img[offset:] = image
+        text_y = (offset + textsize[1]) // 2
+
+    cv2.putText(
+        new_img,
+        text,
+        (text_x, text_y),
+        font_face,
+        font_scale,
+        text_color,
+        font_thickness,
+    )
+    return new_img
 
 
 def save_images(
