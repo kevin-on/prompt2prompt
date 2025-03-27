@@ -83,9 +83,11 @@ class Prompt2PromptAttnProcessor:
         # linear proj
         hidden_states = attn.to_out[0](hidden_states)
 
-        # QUESTION: why do we comment out the dropout?
-        # # dropout
-        # hidden_states = attn.to_out[1](hidden_states)
+        # NOTE: The original implementation removes this dropout layer entirely.
+        # After testing with dropout enabled, I observed no difference in results,
+        # so I chose to keep it included.
+        # dropout
+        hidden_states = attn.to_out[1](hidden_states)
 
         if input_ndim == 4:
             hidden_states = hidden_states.transpose(-1, -2).reshape(
