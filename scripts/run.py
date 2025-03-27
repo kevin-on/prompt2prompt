@@ -1,3 +1,4 @@
+import argparse
 import os
 import sys
 
@@ -24,15 +25,64 @@ from attn_controller import (
 )
 from utils import get_cross_attention
 
-LOW_RESOURCE = False
-NUM_DIFFUSION_STEPS = 50
-GUIDANCE_SCALE = 7.5
+# Default values for command line arguments
+DEFAULT_LOW_RESOURCE = False
+DEFAULT_NUM_DIFFUSION_STEPS = 50
+DEFAULT_GUIDANCE_SCALE = 7.5
+DEFAULT_SEED = 8888
+DEFAULT_OUTPUT_DIR = "results"
+
+# Change these values based on the model you are using
 MAX_NUM_WORDS = 77
-SEED = 8888
 IMAGE_SIZE = 512
 
 
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description="Run prompt-to-prompt with attention control"
+    )
+    parser.add_argument(
+        "--low-resource",
+        action="store_true",
+        help="Run in low resource mode",
+        default=DEFAULT_LOW_RESOURCE,
+    )
+    parser.add_argument(
+        "--num-diffusion-steps",
+        type=int,
+        help="Number of diffusion steps",
+        default=DEFAULT_NUM_DIFFUSION_STEPS,
+    )
+    parser.add_argument(
+        "--guidance-scale",
+        type=float,
+        help="Guidance scale for diffusion",
+        default=DEFAULT_GUIDANCE_SCALE,
+    )
+    parser.add_argument(
+        "--seed", type=int, help="Random seed for reproducibility", default=DEFAULT_SEED
+    )
+    parser.add_argument(
+        "-o",
+        "--output-dir",
+        type=str,
+        help="Directory to save output images",
+        default=DEFAULT_OUTPUT_DIR,
+    )
+
+    return parser.parse_args()
+
+
 def main():
+    args = parse_args()
+
+    global LOW_RESOURCE, NUM_DIFFUSION_STEPS, GUIDANCE_SCALE, SEED, OUTPUT_DIR
+    LOW_RESOURCE = args.low_resource
+    NUM_DIFFUSION_STEPS = args.num_diffusion_steps
+    GUIDANCE_SCALE = args.guidance_scale
+    SEED = args.seed
+    OUTPUT_DIR = args.output_dir
+
     device = (
         torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
     )
@@ -133,10 +183,12 @@ def visualize_cross_attention(
         from_where=["up", "down"],
     )
 
-    ptp_utils.save_images(result["images"], "results/cross_attention_image.png")
+    ptp_utils.save_images(
+        result["images"], os.path.join(OUTPUT_DIR, "cross_attention_image.png")
+    )
     ptp_utils.save_images(
         cross_attention,
-        "results/cross_attention_map.png",
+        os.path.join(OUTPUT_DIR, "cross_attention_map.png"),
     )
 
 
@@ -168,7 +220,7 @@ def replace_edit(
     )
     ptp_utils.save_images(
         np.concatenate([result["images"], result["baseline_images"]], axis=0),
-        "results/squirrel_to_lion.png",
+        os.path.join(OUTPUT_DIR, "squirrel_to_lion.png"),
         num_rows=2,
     )
 
@@ -189,7 +241,7 @@ def replace_edit(
         generator=generator,
     )
     ptp_utils.save_images(
-        result2["images"], "results/squirrel_to_lion_less_replace.png"
+        result2["images"], os.path.join(OUTPUT_DIR, "squirrel_to_lion_less_replace.png")
     )
 
 
@@ -224,7 +276,7 @@ def local_edit(
     )
     ptp_utils.save_images(
         np.concatenate([result["images"], result["baseline_images"]], axis=0),
-        "results/squirrel_to_lion_local_blend.png",
+        os.path.join(OUTPUT_DIR, "squirrel_to_lion_local_blend.png"),
         num_rows=2,
     )
 
@@ -252,7 +304,7 @@ def local_edit(
     )
     ptp_utils.save_images(
         np.concatenate([result["images"], result["baseline_images"]], axis=0),
-        "results/burger_to_lasagne_local_blend.png",
+        os.path.join(OUTPUT_DIR, "burger_to_lasagne_local_blend.png"),
         num_rows=2,
     )
 
@@ -285,7 +337,7 @@ def refinement_edit(
     )
     ptp_utils.save_images(
         np.concatenate([result["images"], result["baseline_images"]], axis=0),
-        "results/squirrel_to_neoclassical.png",
+        os.path.join(OUTPUT_DIR, "squirrel_to_neoclassical.png"),
         num_rows=2,
     )
 
@@ -311,7 +363,7 @@ def refinement_edit(
     )
     ptp_utils.save_images(
         np.concatenate([result["images"], result["baseline_images"]], axis=0),
-        "results/mountain_at_fall.png",
+        os.path.join(OUTPUT_DIR, "mountain_at_fall.png"),
         num_rows=2,
     )
 
@@ -337,7 +389,7 @@ def refinement_edit(
     )
     ptp_utils.save_images(
         np.concatenate([result["images"], result["baseline_images"]], axis=0),
-        "results/mountain_at_winter.png",
+        os.path.join(OUTPUT_DIR, "mountain_at_winter.png"),
         num_rows=2,
     )
 
@@ -369,7 +421,7 @@ def refinement_edit_with_local_blend(
     )
     ptp_utils.save_images(
         np.concatenate([result["images"], result["baseline_images"]], axis=0),
-        "results/soup_to_pea_soup_local_blend.png",
+        os.path.join(OUTPUT_DIR, "soup_to_pea_soup_local_blend.png"),
         num_rows=2,
     )
 
@@ -402,7 +454,7 @@ def attention_reweight(
     )
     ptp_utils.save_images(
         np.concatenate([result["images"], result["baseline_images"]], axis=0),
-        "results/smiling_bunny_doll.png",
+        os.path.join(OUTPUT_DIR, "smiling_bunny_doll.png"),
         num_rows=2,
     )
 
@@ -429,7 +481,7 @@ def attention_reweight(
     )
     ptp_utils.save_images(
         np.concatenate([result["images"], result["baseline_images"]], axis=0),
-        "results/pink_bear_bicycle.png",
+        os.path.join(OUTPUT_DIR, "pink_bear_bicycle.png"),
         num_rows=2,
     )
 
@@ -454,7 +506,7 @@ def attention_reweight(
     )
     ptp_utils.save_images(
         np.concatenate([result["images"], result["baseline_images"]], axis=0),
-        "results/soup_to_pea_soup_croutons.png",
+        os.path.join(OUTPUT_DIR, "soup_to_pea_soup_croutons.png"),
         num_rows=2,
     )
 
@@ -479,7 +531,7 @@ def attention_reweight(
     )
     ptp_utils.save_images(
         np.concatenate([result["images"], result["baseline_images"]], axis=0),
-        "results/soup_to_pea_soup_croutons_reweight.png",
+        os.path.join(OUTPUT_DIR, "soup_to_pea_soup_croutons_reweight.png"),
         num_rows=2,
     )
 
@@ -504,7 +556,7 @@ def attention_reweight(
     )
     ptp_utils.save_images(
         np.concatenate([result["images"], result["baseline_images"]], axis=0),
-        "results/potato_to_fried_potato.png",
+        os.path.join(OUTPUT_DIR, "potato_to_fried_potato.png"),
         num_rows=2,
     )
 
@@ -529,7 +581,7 @@ def attention_reweight(
     )
     ptp_utils.save_images(
         np.concatenate([result["images"], result["baseline_images"]], axis=0),
-        "results/potato_to_fried_potato_reweight.png",
+        os.path.join(OUTPUT_DIR, "potato_to_fried_potato_reweight.png"),
         num_rows=2,
     )
 
