@@ -10,6 +10,7 @@ import torch
 from diffusers import DiffusionPipeline  # type: ignore
 from diffusers import StableDiffusionPipeline  # type: ignore
 
+import ptp_utils
 from attn_controller import (
     AttentionControl,
     AttentionControlConfig,
@@ -17,7 +18,6 @@ from attn_controller import (
     EmptyControl,
 )
 from pil_utils import create_image_grid, save_image
-from ptp_utils import text2image_ldm_stable
 
 LOW_RESOURCE = False
 NUM_DIFFUSION_STEPS = 50
@@ -45,12 +45,14 @@ def main():
         generator=torch.Generator().manual_seed(SEED),
     )
 
-    prompts = [
-        "A painting of a squirrel eating a burger",
-        "A painting of a lion eating a burger",
-    ]
     test_replace_steps(
-        prompts=prompts, model=ldm_stable, config=attn_config, latent=init_latent
+        prompts=[
+            "A painting of a squirrel eating a burger",
+            "A painting of a lion eating a burger",
+        ],
+        model=ldm_stable,
+        config=attn_config,
+        latent=init_latent,
     )
 
 
@@ -137,7 +139,7 @@ def run(
     run_baseline: bool = False,
     generator: Optional[torch.Generator] = None,
 ):
-    images, latents = text2image_ldm_stable(
+    images, latents = ptp_utils.text2image_ldm_stable(
         model,
         prompts,
         controller,
@@ -152,7 +154,7 @@ def run(
     baseline_latents = None
 
     if run_baseline:
-        baseline_images, baseline_latents = text2image_ldm_stable(
+        baseline_images, baseline_latents = ptp_utils.text2image_ldm_stable(
             model,
             prompts,
             EmptyControl(config=controller.config),

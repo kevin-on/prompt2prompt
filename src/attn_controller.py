@@ -130,11 +130,13 @@ class LocalBlend:
         self, x_t: torch.Tensor, attention_store: Dict[str, List[torch.Tensor]]
     ) -> torch.Tensor:
         k = 1
-        maps = attention_store["down_cross"][2:4] + attention_store["up_cross"][:3]
+        maps = (
+            attention_store["down_cross"][2:4] + attention_store["up_cross"][:3]
+        )  # attention maps with 16x16 dimension
         maps = [
             item.reshape(
                 self.alpha_layers.shape[0], -1, 1, 16, 16, self.config.max_num_words
-            )
+            )  # batch_size x num_heads 1 x 16 x 16 x num_words
             for item in maps
         ]
         maps = torch.cat(maps, dim=1)
@@ -152,7 +154,7 @@ class LocalBlend:
         config: AttentionControlConfig,
         prompts: List[str],
         words: List[List[str]],
-        threshold=0.3,
+        threshold: float = 0.3,
     ):
         self.config = config
         alpha_layers = torch.zeros(len(prompts), 1, 1, 1, 1, config.max_num_words)

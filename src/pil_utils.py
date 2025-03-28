@@ -160,7 +160,8 @@ def create_image_grid(
 
 
 def save_image(image: np.ndarray, path: str):
-    os.makedirs(os.path.dirname(path), exist_ok=True)
+    if os.path.dirname(path):
+        os.makedirs(os.path.dirname(path), exist_ok=True)
     Image.fromarray(image).save(path)
 
 

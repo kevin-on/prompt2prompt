@@ -130,7 +130,8 @@ def save_images(
 
     pil_img = Image.fromarray(image_)
 
-    os.makedirs(os.path.dirname(path), exist_ok=True)
+    if os.path.dirname(path):
+        os.makedirs(os.path.dirname(path), exist_ok=True)
     pil_img.save(path)
 
 
