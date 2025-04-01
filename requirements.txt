@@ -3,3 +3,4 @@ diffusers==0.32.2
 transformers==4.50.0
 accelerate==1.5.2
 opencv-python==4.11.0
+einops==0.8.1

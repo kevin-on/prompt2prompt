@@ -100,12 +100,8 @@ class AttentionStore(AttentionControl):
     def between_steps(self) -> None:
         if len(self.attention_store) == 0:
             self.attention_store = self.step_store
-            # for key in self.attention_store:
-            #     print(f"key: {key}")
-            #     for attn in self.attention_store[key]:
-            #         print(f"{attn.shape}", end=" ")
-            #     print()
         else:
+            # NOTE: Accumulating attention maps vs using the last step's attention map doesn't make a big difference
             for key in self.attention_store:
                 for i in range(len(self.attention_store[key])):
                     self.attention_store[key][i] += self.step_store[key][i]
